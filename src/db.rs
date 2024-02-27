@@ -29,7 +29,11 @@ impl FromStr for LeaseEntry {
             last_change: parts.get(0).ok_or(_error("last_change"))?.to_string(),
             mac: parts.get(1).ok_or(_error("mac"))?.to_string(),
             ip: parts.get(2).ok_or(_error("ip"))?.to_string(),
-            name: parts.get(3).ok_or(_error("name"))?.to_string(),
+            name: parts
+                .get(3)
+                .ok_or(_error("name"))?
+                .to_string()
+                .to_lowercase(),
             raw: s.to_string(),
         };
 
@@ -49,6 +53,10 @@ pub fn transform_lease_file(leases: Vec<String>) -> Result<Vec<LeaseEntry>> {
         .into_iter()
         .map(|s| LeaseEntry::from_str(s.as_str()))
         .collect::<Result<Vec<_>>>()
+        .map(|mut entries| {
+            entries.sort_unstable_by(|a, b| a.name.cmp(&b.name));
+            entries
+        })
 }
 
 pub fn read<S: Into<String>>(uri: S) -> Result<Vec<LeaseEntry>> {
