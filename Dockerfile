@@ -6,10 +6,12 @@ SHELL ["/bin/bash", "-c"]
 
 WORKDIR /app
 COPY . .
-RUN apt-get update && apt-get install -y libssl-dev pkg-config build-essential cmake curl libpaho-mqtt-dev dbus libdbus-1-dev
+RUN apt-get update && apt-get install -y nodejs npm libssl-dev pkg-config build-essential cmake curl libpaho-mqtt-dev dbus libdbus-1-dev
 RUN curl --proto '=https' -sSf https://sh.rustup.rs/ | bash -s -- --default-toolchain=${RUST_VERSION} -y
 RUN source "/$HOME/.cargo/env" && \
-  cargo build -r
+  cargo build -r && \
+  npm install && \
+  npm run tailwind
 
 FROM ${BASE_IMAGE} as runner
 ARG APP
